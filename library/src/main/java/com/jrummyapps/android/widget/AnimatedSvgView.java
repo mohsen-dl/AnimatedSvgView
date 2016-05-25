@@ -30,7 +30,6 @@ import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Build;
-import android.support.graphics.drawable.ExposedPathParser;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -40,6 +39,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 import com.jrummyapps.android.animatedsvgview.R;
+import com.jrummyapps.android.svg.SVGParser;
 
 public class AnimatedSvgView extends View {
 
@@ -278,7 +278,8 @@ public class AnimatedSvgView extends View {
     for (int i = 0; i < mGlyphStrings.length; i++) {
       mGlyphData[i] = new GlyphData();
       try {
-        mGlyphData[i].path = ExposedPathParser.createPathFromPathData(mGlyphStrings[i]);
+        //mGlyphData[i].path = ExposedPathParser.createPathFromPathData(mGlyphStrings[i]);
+        mGlyphData[i].path = SVGParser.parsePath(mGlyphStrings[i]);
         mGlyphData[i].path.transform(scaleMatrix);
       } catch (Exception e) {
         mGlyphData[i].path = new Path();
