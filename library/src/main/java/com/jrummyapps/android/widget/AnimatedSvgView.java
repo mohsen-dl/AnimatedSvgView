@@ -62,7 +62,7 @@ public class AnimatedSvgView extends View {
   private static float constrain(float min, float max, float v) {
     return Math.max(min, Math.min(max, v));
   }
-
+  private final int white_effect = 0x3DFFFFFF;
   private int mTraceTime = 2000;
   private int mTraceTimePerGlyph = 1000;
   private int mFillStart = 1200;
@@ -206,12 +206,14 @@ public class AnimatedSvgView extends View {
       float phase = constrain(0, 1,
           (t - (mTraceTime - mTraceTimePerGlyph) * i * 1f / mGlyphData.length) * 1f / mTraceTimePerGlyph);
       float distance = INTERPOLATOR.getInterpolation(phase) * mGlyphData[i].length;
-      mGlyphData[i].paint.setColor(mTraceResidueColors[i]);
+//      mGlyphData[i].paint.setColor(mTraceResidueColors[i]);
+      mGlyphData[i].paint.setColor(Color.WHITE);
       mGlyphData[i].paint.setPathEffect(new DashPathEffect(
           new float[]{distance, mGlyphData[i].length}, 0));
       canvas.drawPath(mGlyphData[i].path, mGlyphData[i].paint);
 
-      mGlyphData[i].paint.setColor(mTraceColors[i]);
+//      mGlyphData[i].paint.setColor(mTraceColors[i]);
+      mGlyphData[i].paint.setColor(white_effect);
       mGlyphData[i].paint.setPathEffect(new DashPathEffect(
           new float[]{0, distance, phase > 0 ? mMarkerLength : 0, mGlyphData[i].length}, 0));
       canvas.drawPath(mGlyphData[i].path, mGlyphData[i].paint);

@@ -26,7 +26,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/google_red">
 
   <com.jrummyapps.android.widget.AnimatedSvgView
       android:id="@+id/animated_svg_view"
