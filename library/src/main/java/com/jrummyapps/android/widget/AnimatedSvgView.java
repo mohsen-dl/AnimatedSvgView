@@ -108,7 +108,7 @@ public class AnimatedSvgView extends View {
     mFillPaint.setStyle(Paint.Style.FILL);
 
     mTraceColors = new int[1];
-    mTraceColors[0] = Color.BLACK;
+    mTraceColors[0] = Color.WHITE;
     mTraceResidueColors = new int[1];
     mTraceResidueColors[0] = 0x32000000;
 
@@ -135,7 +135,7 @@ public class AnimatedSvgView extends View {
       if (glyphStringsId != 0) {
         setGlyphStrings(getResources().getStringArray(glyphStringsId));
         setTraceResidueColor(Color.argb(50, 0, 0, 0));
-        setTraceColor(Color.BLACK);
+        setTraceColor(Color.WHITE);
       }
       if (traceResidueColorsId != 0) {
         setTraceResidueColors(getResources().getIntArray(traceResidueColorsId));
