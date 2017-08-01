@@ -17,6 +17,8 @@
 
 package android.support.graphics.drawable;
 
+import android.support.v4.graphics.PathParser;
+
 public class ExposedPathParser extends PathParser {
 
 }
