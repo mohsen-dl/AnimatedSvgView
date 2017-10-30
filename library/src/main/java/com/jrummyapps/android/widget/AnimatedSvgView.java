@@ -16,7 +16,6 @@
  */
 
 package com.jrummyapps.android.widget;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -30,7 +29,9 @@ import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Build;
-import android.support.graphics.drawable.ExposedPathParser;
+import android.support.annotation.ColorInt;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -62,7 +63,7 @@ public class AnimatedSvgView extends View {
   private static float constrain(float min, float max, float v) {
     return Math.max(min, Math.min(max, v));
   }
-  private final int white_effect = 0x3DFFFFFF;
+
   private int mTraceTime = 2000;
   private int mTraceTimePerGlyph = 1000;
   private int mFillStart = 1200;
@@ -108,7 +109,7 @@ public class AnimatedSvgView extends View {
     mFillPaint.setStyle(Paint.Style.FILL);
 
     mTraceColors = new int[1];
-    mTraceColors[0] = Color.WHITE;
+    mTraceColors[0] = Color.BLACK;
     mTraceResidueColors = new int[1];
     mTraceResidueColors[0] = 0x32000000;
 
@@ -124,7 +125,7 @@ public class AnimatedSvgView extends View {
       mFillTime = a.getInt(R.styleable.AnimatedSvgView_animatedSvgFillTime, 1000);
       int traceMarkerLength = a.getInt(R.styleable.AnimatedSvgView_animatedSvgTraceMarkerLength, 16);
       mMarkerLength =
-          TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, traceMarkerLength, getResources().getDisplayMetrics());
+              TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, traceMarkerLength, getResources().getDisplayMetrics());
       int glyphStringsId = a.getResourceId(R.styleable.AnimatedSvgView_animatedSvgGlyphStrings, 0);
       int traceResidueColorsId = a.getResourceId(R.styleable.AnimatedSvgView_animatedSvgTraceResidueColors, 0);
       int traceColorsId = a.getResourceId(R.styleable.AnimatedSvgView_animatedSvgTraceColors, 0);
@@ -135,7 +136,7 @@ public class AnimatedSvgView extends View {
       if (glyphStringsId != 0) {
         setGlyphStrings(getResources().getStringArray(glyphStringsId));
         setTraceResidueColor(Color.argb(50, 0, 0, 0));
-        setTraceColor(Color.WHITE);
+        setTraceColor(Color.BLACK);
       }
       if (traceResidueColorsId != 0) {
         setTraceResidueColors(getResources().getIntArray(traceResidueColorsId));
@@ -174,7 +175,7 @@ public class AnimatedSvgView extends View {
     int heightMode = View.MeasureSpec.getMode(heightMeasureSpec);
 
     if (height <= 0 && width <= 0 && heightMode == View.MeasureSpec.UNSPECIFIED &&
-        widthMode == View.MeasureSpec.UNSPECIFIED) {
+            widthMode == View.MeasureSpec.UNSPECIFIED) {
       width = 0;
       height = 0;
     } else if (height <= 0 && heightMode == View.MeasureSpec.UNSPECIFIED) {
@@ -188,7 +189,7 @@ public class AnimatedSvgView extends View {
     }
 
     super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-        MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+            MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
   }
 
   @SuppressLint("DrawAllocation")
@@ -204,18 +205,16 @@ public class AnimatedSvgView extends View {
     // Draw outlines (starts as traced)
     for (int i = 0; i < mGlyphData.length; i++) {
       float phase = constrain(0, 1,
-          (t - (mTraceTime - mTraceTimePerGlyph) * i * 1f / mGlyphData.length) * 1f / mTraceTimePerGlyph);
+              (t - (mTraceTime - mTraceTimePerGlyph) * i * 1f / mGlyphData.length) * 1f / mTraceTimePerGlyph);
       float distance = INTERPOLATOR.getInterpolation(phase) * mGlyphData[i].length;
-//      mGlyphData[i].paint.setColor(mTraceResidueColors[i]);
-      mGlyphData[i].paint.setColor(Color.WHITE);
+      mGlyphData[i].paint.setColor(mTraceResidueColors[i]);
       mGlyphData[i].paint.setPathEffect(new DashPathEffect(
-          new float[]{distance, mGlyphData[i].length}, 0));
+              new float[]{distance, mGlyphData[i].length}, 0));
       canvas.drawPath(mGlyphData[i].path, mGlyphData[i].paint);
 
-//      mGlyphData[i].paint.setColor(mTraceColors[i]);
-      mGlyphData[i].paint.setColor(white_effect);
+      mGlyphData[i].paint.setColor(mTraceColors[i]);
       mGlyphData[i].paint.setPathEffect(new DashPathEffect(
-          new float[]{0, distance, phase > 0 ? mMarkerLength : 0, mGlyphData[i].length}, 0));
+              new float[]{0, distance, phase > 0 ? mMarkerLength : 0, mGlyphData[i].length}, 0));
       canvas.drawPath(mGlyphData[i].path, mGlyphData[i].paint);
     }
 
@@ -264,7 +263,7 @@ public class AnimatedSvgView extends View {
     for (int i = 0; i < mGlyphStrings.length; i++) {
       mGlyphData[i] = new GlyphData();
       try {
-        mGlyphData[i].path = ExposedPathParser.createPathFromPathData(mGlyphStrings[i]);
+        mGlyphData[i].path = PathParser.createPathFromPathData(mGlyphStrings[i]);
         mGlyphData[i].path.transform(scaleMatrix);
       } catch (Exception e) {
         mGlyphData[i].path = new Path();
@@ -282,7 +281,7 @@ public class AnimatedSvgView extends View {
       mGlyphData[i].paint.setAntiAlias(true);
       mGlyphData[i].paint.setColor(Color.WHITE);
       mGlyphData[i].paint.setStrokeWidth(
-          TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+              TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
   }
 
@@ -310,7 +309,7 @@ public class AnimatedSvgView extends View {
    * @param glyphStrings
    *     The path strings found in the SVG.
    */
-  public void setGlyphStrings(String... glyphStrings) {
+  public void setGlyphStrings(@NonNull String... glyphStrings) {
     mGlyphStrings = glyphStrings;
   }
 
@@ -320,7 +319,7 @@ public class AnimatedSvgView extends View {
    * @param traceResidueColors
    *     the colors. Should be the same length as the SVG paths.
    */
-  public void setTraceResidueColors(int[] traceResidueColors) {
+  public void setTraceResidueColors(@NonNull int[] traceResidueColors) {
     mTraceResidueColors = traceResidueColors;
   }
 
@@ -330,7 +329,7 @@ public class AnimatedSvgView extends View {
    * @param traceColors
    *     The colors. Should be the same length as the SVG paths.
    */
-  public void setTraceColors(int[] traceColors) {
+  public void setTraceColors(@NonNull int[] traceColors) {
     mTraceColors = traceColors;
   }
 
@@ -340,7 +339,7 @@ public class AnimatedSvgView extends View {
    * @param fillColors
    *     The colors for each SVG data path.
    */
-  public void setFillColors(int[] fillColors) {
+  public void setFillColors(@NonNull int[] fillColors) {
     mFillColors = fillColors;
   }
 
@@ -350,7 +349,7 @@ public class AnimatedSvgView extends View {
    * @param color
    *     The color
    */
-  public void setTraceResidueColor(int color) {
+  public void setTraceResidueColor(@ColorInt int color) {
     if (mGlyphStrings == null) {
       throw new RuntimeException("You need to set the glyphs first.");
     }
@@ -368,7 +367,7 @@ public class AnimatedSvgView extends View {
    * @param color
    *     The color
    */
-  public void setTraceColor(int color) {
+  public void setTraceColor(@ColorInt int color) {
     if (mGlyphStrings == null) {
       throw new RuntimeException("You need to set the glyphs first.");
     }
@@ -386,7 +385,7 @@ public class AnimatedSvgView extends View {
    * @param color
    *     The color
    */
-  public void setFillColor(int color) {
+  public void setFillColor(@ColorInt int color) {
     if (mGlyphStrings == null) {
       throw new RuntimeException("You need to set the glyphs first.");
     }
@@ -396,6 +395,46 @@ public class AnimatedSvgView extends View {
       colors[i] = color;
     }
     setFillColors(colors);
+  }
+
+  /**
+   * Set the animation trace time
+   *
+   * @param traceTime
+   *     time in milliseconds
+   */
+  public void setTraceTime(int traceTime) {
+    mTraceTime = traceTime;
+  }
+
+  /**
+   * Set the time used to trace each glyph
+   *
+   * @param traceTimePerGlyph
+   *     time in milliseconds
+   */
+  public void setTraceTimePerGlyph(int traceTimePerGlyph) {
+    mTraceTimePerGlyph = traceTimePerGlyph;
+  }
+
+  /**
+   * Set the time at which colors will start being filled after the tracing begins
+   *
+   * @param fillStart
+   *     time in milliseconds
+   */
+  public void setFillStart(int fillStart) {
+    mFillStart = fillStart;
+  }
+
+  /**
+   * Set the time it takes to fill colors
+   *
+   * @param fillTime
+   *     time in milliseconds
+   */
+  public void setFillTime(int fillTime) {
+    mFillTime = fillTime;
   }
 
   /**
@@ -433,7 +472,7 @@ public class AnimatedSvgView extends View {
    * {@link #STATE_FILL_STARTED} or
    * {@link #STATE_FINISHED}
    */
-  public int getState() {
+  @State public int getState() {
     return mState;
   }
 
@@ -447,7 +486,7 @@ public class AnimatedSvgView extends View {
     mOnStateChangeListener = onStateChangeListener;
   }
 
-  private void changeState(int state) {
+  private void changeState(@State int state) {
     if (mState == state) {
       return;
     }
@@ -473,14 +512,18 @@ public class AnimatedSvgView extends View {
      *     {@link #STATE_FILL_STARTED} or
      *     {@link #STATE_FINISHED}
      */
-    void onStateChange(int state);
+    void onStateChange(@State int state);
+  }
+
+  @IntDef({STATE_NOT_STARTED, STATE_TRACE_STARTED, STATE_FILL_STARTED, STATE_FINISHED})
+  public @interface State {
   }
 
   static final class GlyphData {
-
     Path path;
     Paint paint;
     float length;
+
   }
 
 }
